@@ -1,0 +1,203 @@
+
+---
+output: # rmarkdown::github_document
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 3.  Working with Data Frame. Base R Style"
+---
+
+***Note*:** *This assignment practices working with Data Frame using Base R.*
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](assignment3.Rmd)) in Rstudio. 
+
+- Right under each question, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas under Assignment 3. 
+
+-------
+
+Problems
+-------
+ \
+
+1. Create the following data frame
+
+| Rank 	| Age 	| Name  	|
+|:------	|:-----	|:-------	|
+| 0    	| 28  	| Tom   	|
+| 1    	| 34  	| Jack  	|
+| 2    	| 29  	| Steve 	|
+| 3    	| 42  	| Ricky 	|
+```{r}
+df <- data.frame(Rank = c(0:3),
+                Age = c(28,34,29,42),
+                Name = c('Tom','Jack','Steve','Ricky'))
+```
+
+2. Use `read.csv` to import the Covid19 Vaccination data from WHO: [link](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv).
+```{r}
+df <- read.csv('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
+```
+
+2. Show the names of the variables in the data
+```{r}
+names(df)
+```
+
+3. How many columns and rows the data have? 
+```{r}
+str(df)
+```
+
+4. How many missing values are there?  Show the missing values by columns.  What variable has the most number of missing values?
+```{r}
+sum(is.na(df))
+colSums(is.na(df))
+colMeans(is.na(df))
+```
+
+5. What is the class of the `date` column. Change the `date` columns to `date` type using the `as.Date` function. Show the new class of the `date` column. 
+```{r}
+class(df$Date_report)
+names(df)[1] <- 'Date_report'
+df$Date_report = as.Date(df$Date_report)
+```
+
+6. Capitalize the names of all the variables
+```{r}
+names(df) <- toupper(names(df))
+```
+
+7. Find the average number of cases per day. Find the maximum cases a day.  
+```{r}
+df1 <- df[df$DATE_REPORT>='2020-01-01',]
+by(df1$CASES, df1$DATE_REPORT, mean)
+by(df1$CASES, df1$DATE_REPORT, max)
+```
+
+8. How many states are there in the data?  
+```{r}
+table <- table(df$STATE)
+str(table)
+```
+There are 56 States in this dataset
+
+
+9. Create a new variable `weekdays` to store the weekday for each rows. 
+```{r}
+library(lubridate)
+df$weekdays <- weekdays(df$DATE_REPORT)
+```
+
+10. Create the categorical variable `death2` variable taking the values as follows
+
+- `has_death` if there is a death that day
+-  `no_death` if there is no death that day
+```{r}
+library(dplyr)
+df$death2 <- case_when(df$DEATHS == 0 ~ 'no_death',
+                       df$DEATHS > 0 ~ 'has_death')
+```
+
+Find the frequency and relative frequency of `no_death` and `has_death`. 
+```{r}
+table(df$death2)
+prop.table(table(df$death2))
+```
+
+
+11. Find the first quartile (Q1), second quartile (Q2) and and third quartile (Q3) of the variable `death`. (Hint:  Use the `summary` function)
+```{r}
+summary(df$DEATHS)
+```
+
+12. Create the categorical variable `death3` variable taking the values as follows
+
+- `low_death` if the number of deaths smaller than the 25 percentile (Q1)
+
+- `mid_death` if the number of deaths from Q1 to Q3
+
+- `high_death` if the number of deaths greater than Q3
+```{r}
+df$death3 <- case_when(df$DEATHS < 839 ~ 'low_death',
+                       df$DEATHS < 12680 ~ 'mid_death',
+                       df$DEATHS >= 12680 ~ 'high_death')
+```
+
+13. Find the average cases in Rhode Island in 2021
+```{r}
+df2 <- df[df$DATE_REPORT<='2021-12-31' & df$DATE_REPORT >= '2021-01-01' & df$STATE=="Rhode Island",]
+mean(df2$CASES)
+```
+
+14. Find the median cases by weekdays in Rhode Island in 2021 
+```{r}
+by(df2$CASES, df2$weekdays, mean)
+```
+
+15. Compare the median cases in Rhode Island in June, July, August and September in 2021. 
+```{r}
+df$month <- month(df$DATE_REPORT, label = TRUE)
+df$month2 <- case_when(df$month %in% c('Jun','Jul','Aug','Sep') ~ 'Months')
+df3 <- df[df$DATE_REPORT<='2021-12-31' & df$DATE_REPORT >= '2021-01-01' & df$STATE=="Rhode Island" & df$month2 == "Months",]
+by(df3$CASES, df3$month, median)
+```
+
+16.  Find your own dataset, import it and implement the following functions on the data
+
+- head
+- str
+- names
+- mean, min, max
+- table
+- is.na
+- colSums
+- class
+- cor
+- by
+- ifelse
+- case_when
+```{r}
+getwd()
+titanic <- read.csv('C:/Users/student/Documents/MATH421/Marco-Loccisano.github.io/titanic.csv')
+head(titanic, 5)
+str(titanic)
+names(titanic)
+mean(titanic$Age, na.rm=TRUE)
+min(titanic$Age, na.rm=TRUE)
+max(titanic$Age, na.rm=TRUE)
+table(titanic$Age)
+sum(is.na(titanic$Age))
+colSums(is.na(titanic))
+class(titanic$Age)
+cor(titanic$Pclass, titanic$Fare)
+by(titanic$Fare, titanic$Sex, mean)
+titanic$Fare_Level <- ifelse(titanic$Fare<=30,
+                   'Low','High')
+titanic$Pclass_Lvl <- case_when(titanic$Pclass == 1 ~ 'High',
+                                titanic$Pclass == 2 ~ 'Middle',
+                                titanic$Pclass == 3 ~ 'Low')
+
+
+
+```
+
+17.  In the dataset in #16, practice the follows.  You can reuse the code of 16. 
+
+- Create a categorical variable from a continuous variable
+- From one categorical variable, create a new categorical variable with fewer categories
+
+If you do not have a data, you can use [the titanic dataset](https://www.kaggle.com/competitions/titanic/overview), which can be downloaded at [this link](../data/titanic.csv)
+```{r}
+titanic$Fare_Level <- ifelse(titanic$Fare<=30,
+                   'Low','High')
+titanic$Pclass_Lvl2 <- ifelse(titanic$Pclass_Lvl == 'High', 'High', 'Low')
+```
+
