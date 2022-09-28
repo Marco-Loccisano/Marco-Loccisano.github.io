@@ -1,0 +1,56 @@
+---
+title: "assignment 3 extra credit"
+author: "Marco Loccisano"
+date: "2022-09-28"
+output: html_document
+---
+
+16.  Find your own dataset, import it and implement the following functions on the data
+
+- head
+- str
+- names
+- mean, min, max
+- table
+- is.na
+- colSums
+- class
+- cor
+- by
+- ifelse
+- case_when
+```{r}
+adult <- read.csv('C:/Users/student/Documents/MATH421/Marco-Loccisano.github.io/adult_census.csv')
+library(lubridate)
+library(dplyr)
+head(adult, 5)
+str(adult)
+names(adult)
+mean(adult$age, na.rm=TRUE)
+min(adult$age, na.rm=TRUE)
+max(adult$age, na.rm=TRUE)
+table(adult$education)
+sum(is.na(adult$age))
+colSums(is.na(adult))
+class(adult$age)
+cor(adult$education.num, adult$hours.per.week)
+by(adult$age, adult$sex, mean)
+adult$age2 <- ifelse(adult$age<=30,
+                   'Young','Old')
+adult$hours.per.week2 <- case_when(adult$hours.per.week <= 20 ~ 'Part-Time',
+                                adult$hours.per.week > 20 & adult$hours.per.week <= 40 ~ 'Full-Time',
+                                adult$hours.per.week > 40 ~ 'Overtime')
+```
+
+
+17. In the dataset in #16, practice the follows.  You can reuse the code of 16. 
+
+- Create a categorical variable from a continuous variable
+- From one categorical variable, create a new categorical variable with fewer categories
+
+```{r}
+adult$age2 <- ifelse(adult$age<=30,
+                   'Young','Old')
+adult$race2 <- ifelse(adult$race == 'White','White','Not_White')
+```
+
