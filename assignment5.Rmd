@@ -1,0 +1,125 @@
+
+---
+output: # rmarkdown::github_document
+  html_document:
+    theme: cerulean
+    toc: true
+  pdf_document: default
+  word_document: default
+title: "Assignment 5: Handle Missing Values"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](assignment5.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+-------
+
+**The data:** 
+
+This assignment works with the Adult Census Data that can be downloaded at [this link.](https://bryantstats.github.io/math421/data/adult_census_missing.csv)
+
+-------
+
+**Questions**
+
+1. Use `read_csv` to import the data.  Show the number of NAs for each columns.   
+```{r}
+library(tidyverse)
+adult <- read_csv('C:/Users/student/Documents/MATH421/Marco-Loccisano.github.io/adult_census_missing.csv')
+colSums(is.na(adult))
+```
+
+2. Using function `aggr` the VIM package to plot the number of NAs for each column. 
+```{r}
+library(VIM)
+aggr(adult)
+```
+
+3. Find other forms of missing values. Hint: You can use the `table` function to check if there are suspicious categories (Unknown, for example) in a variable. What all other forms of missing values shown in the data. 
+```{r}
+table(adult$age)
+table(adult$workclass)
+table(adult$education.num)
+table(adult$education)
+table(adult$marital.status)
+table(adult$occupation)
+table(adult$sex)
+table(adult$capital.gain)
+table(adult$native.country)
+table(adult$race)
+table(adult$relationship)
+table(adult$hours.per.week)
+
+```
+?, Not known, and Unknown are different suspicious categories
+4. Replace all the forms of missing values found to NA
+```{r}
+adult <- na_if(adult, 'Unknown')
+adult <- na_if(adult, 'Not Known')
+adult <- na_if(adult, '?')
+adult <- na_if(adult, '99999')
+```
+
+5. Replot the number of NAs for each column. 
+```{r}
+aggr(adult)
+```
+
+6. Approach 1 to handle NAs: remove all rows that have any NAs. Save the dataset after removing as a different data. The original data is unchanged (still have NAs).  How many rows left after removing?
+```{r}
+adult2 <- drop_na(adult)
+```
+29717 rows
+7. Approach 2 to handle NAs:  Fill all the NAs with the previous or next value. (Hint: Using `fill` function).  Save the dataset after filling as a different data. The original data is unchanged (still have NAs). 
+```{r}
+adult3 <- adult %>% fill(age, workclass, education, marital.status, occupation, sex, capital.gain, native.country, relationship, .direction = 'updown')
+```
+
+8. Approach 3 to handle NAs: For numeric variable, replace the NAs by the median.  For categorical variables, replace the NAs to the majority. 
+```{r}
+adult4 <- adult
+mean_age <- mean(adult$age, na.rm=TRUE)
+adult4$age <- replace_na(adult$age, mean_age)
+
+mean_fnlwgt <- mean(adult$fnlwgt, na.rm=TRUE)
+adult4$fnlwgt <- replace_na(adult$fnlwgt, mean_fnlwgt)
+
+mean_capital.gain <- mean(adult$capital.gain, na.rm=TRUE)
+adult4$capital.gain <- replace_na(adult$capital.gain, mean_capital.gain)
+
+majority_sex <- names(which.max(table(adult$sex)))
+adult4$sex <- replace_na(adult$sex, majority_sex)
+
+majority_workclass <- names(which.max(table(adult$workclass)))
+adult4$workclass <- replace_na(adult$workclass, majority_workclass)
+
+majority_education <- names(which.max(table(adult$education)))
+adult4$education <- replace_na(adult$sex, majority_education)
+
+majority_marital.status <- names(which.max(table(adult$marital.status)))
+adult4$marital.status <- replace_na(adult$sex, majority_marital.status)
+
+majority_occupation <- names(which.max(table(adult$occupation)))
+adult4$occupation <- replace_na(adult$sex, majority_occupation)
+
+majority_relationship <- names(which.max(table(adult$relationship)))
+adult4$relationship <- replace_na(adult$relationship, majority_relationship)
+```
+
+
+
+
+
