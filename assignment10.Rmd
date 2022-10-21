@@ -1,0 +1,147 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 10: Predictive Modeling - Part 1"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](assignment10.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+
+-------
+
+1. Use the `Adult Census Income` dataset.  We will predict the income (whether or not it is more than 50k or not) of an adult. Import the dataset.  Partition the data into 80% training and 20% testing.  
+```{r}
+library(rlang)
+library(tidyverse)
+library(lubridate)
+df = read_csv("C:/Users/student/Documents/MATH421/Marco-Loccisano.github.io/adult_census.csv")
+df <- df %>% select(-education.num, -workclass, -fnlwgt, -occupation,-capital.gain,-capital.loss,-hours.per.week,-native.country)
+df <- df %>% rename(target=income)
+df <- df %>% 
+  mutate(target = as.factor(target),
+         race = as.factor(race),
+         sex = as.factor(sex),
+         education = as.factor(education),
+         marital = as.factor(marital.status),
+         relationship = as.factor(relationship)
+         )
+library(caret)
+library(rpart)
+set.seed(2020)
+splitIndex <- createDataPartition(df$target, p = .80, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+```
+
+2. Practice Decision Tree.  Do the follows:
+
+  - Use `rpart` package, create a decision tree with maximum depth of 3. 
+```{r}
+tree_model <- rpart(target ~ ., data = df_train,
+                 control = rpart.control(maxdepth = 3))
+
+```
+
+  - Calculate the accuracy of the model on the testing data. Notice that the positive outcome here is not `1` but `>50K` or `<50K`. 
+```{r}
+pred <- predict(tree_model, df_test, type = "class")
+cm <- confusionMatrix(data = pred, reference = df_test$target)
+cm$overall[1]
+```
+
+  - Plot the tree
+```{r}
+library(rattle)
+fancyRpartPlot(tree_model)
+```
+
+  - Plot the variable importance by the tree
+```{r}
+barplot(tree_model$variable.importance)
+```
+
+3. Create 3 more trees and compare the testing accuracy of these trees, which tree give the highest testing accuracy.
+```{r}
+tree_model2 <- rpart(target ~ ., data = df_train,
+                 control = rpart.control(maxdepth = 4))
+splitIndex2 <- createDataPartition(df$target, p = .7, 
+                                  list = FALSE)
+df_train2 <- df[ splitIndex2,]
+df_test2 <- df[-splitIndex2,]
+tree_model3 <- rpart(target ~ ., data = df_train2,
+                 control = rpart.control(maxdepth = 1))
+tree_model4 <- rpart(target ~ ., data = df_train2,
+                 control = rpart.control(maxdepth = 2))
+pred2 <- predict(tree_model2, df_test, type = "class")
+cm <- confusionMatrix(data = pred2, reference = df_test$target)
+cm$overall[1]
+pred3 <- predict(tree_model3, df_test2, type = "class")
+cm <- confusionMatrix(data = pred3, reference = df_test2$target)
+cm$overall[1]
+pred4 <- predict(tree_model4, df_test2, type = "class")
+cm <- confusionMatrix(data = pred4, reference = df_test2$target)
+cm$overall[1]
+```
+Tree 4 has the highest testing accuracy
+
+4. Practice Random Forest.  Do the follows: 
+
+  - Use `randomForest` package, create a random forest of 1000 trees. 
+```{r}
+library(randomForest)
+forest_model = randomForest(target ~ ., data=df_train, ntree = 1000)
+
+```
+
+  - Calculate the accuracy of the model on the testing data. 
+```{r}
+pred <- predict(forest_model, df_test, type = "class")
+cm <- confusionMatrix(data = pred, reference = df_test$target)
+cm$overall[1]
+```
+
+  - Plot the variable importance by the forest
+```{r}
+barplot(importance(forest_model))
+```
+
+5. Create 3 more forests and compare the testing accuracy of these forests, which forest give the highest testing accuracy.
+```{r}
+forest_model2 = randomForest(target ~ ., data=df_train, ntree = 100)
+forest_model3 = randomForest(target ~ ., data=df_train, ntree = 500)
+forest_model4 = randomForest(target ~ ., data=df_train, ntree = 1500)
+pred2 <- predict(forest_model2, df_test, type = "class")
+cm <- confusionMatrix(data = pred2, reference = df_test$target)
+cm$overall[1]
+pred3 <- predict(forest_model3, df_test, type = "class")
+cm <- confusionMatrix(data = pred3, reference = df_test$target)
+cm$overall[1]
+pred4 <- predict(forest_model4, df_test, type = "class")
+cm <- confusionMatrix(data = pred4, reference = df_test$target)
+cm$overall[1]
+```
+Forest4 has the highest testing accuracy
+
+6. What is the best model (in term of testing accuracy) among all models (including trees and forests) you have trained?
+
+Random Forest4 has the highest testing accuracy out of all the models I made.
+
