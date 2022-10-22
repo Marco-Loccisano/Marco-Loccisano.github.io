@@ -53,6 +53,10 @@ forest_ranger <- train(target~., data=df_train,
                     trControl = trControl,
                     tuneGrid = tuneGrid)
 plot(forest_ranger)
+
+pred <- predict(forest_ranger, df_test)
+cm <- confusionMatrix(data = pred, reference = df_test$target)
+cm$overall[1]
 ```
 The best parameters are number of randomly selected parameters and minimal node size.
 
