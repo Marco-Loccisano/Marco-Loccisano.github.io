@@ -26,3 +26,7 @@
 [Assignment 11](assignment11.html)
 
 [Assignment 12](assignment12.html)
+
+[Midterm](midterm_tab.html)
+
+[Midterm Presentation](Midterm-Project-Presentation.html)
