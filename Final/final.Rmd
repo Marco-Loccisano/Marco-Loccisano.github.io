@@ -1,0 +1,28 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Final Project - Building Interactive Dashboard"
+---
+ 
+[Question 1](question1.html)
+
+[Question 2](question2.html)
+    
+[Question 3](https://mflocci.shinyapps.io/1_flex_select/)
+
+[Question 4](https://mflocci.shinyapps.io/question4/)
+
+[Question 5](https://mflocci.shinyapps.io/question5/)
+
+[Question 6](https://mflocci.shinyapps.io/question6/)
+
+[Question 7](https://mflocci.shinyapps.io/question7/)
+
+[Question 8](https://mflocci63.shinyapps.io/question8/)
+
+[Question 9](https://mflocci63.shinyapps.io/question9/)
+
+[Question 10](https://mflocci63.shinyapps.io/question10/)

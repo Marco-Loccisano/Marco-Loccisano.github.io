@@ -1,0 +1,125 @@
+
+---
+title: "Question 2"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+    social: menu
+---
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(DT)
+df <- read_csv('BankChurners.csv')
+
+# Create a ggplot object
+p <- df %>% 
+  mutate(Attrition_Flag = factor(Attrition_Flag)) %>% 
+  ggplot()+ 
+  geom_bar(mapping=aes(x=Gender, fill=Attrition_Flag), 
+           position = 'fill')+
+  labs(y='Proportion', fill='Attrition')
+
+p1 <- df %>% 
+  mutate(Attrition_Flag = factor(Attrition_Flag)) %>% 
+  ggplot()+ 
+  geom_density(mapping=aes(x=Customer_Age, color=Attrition_Flag))+
+  facet_wrap(~Marital_Status)
+
+
+p2 <- df %>% 
+  ggplot()+
+  geom_density(mapping=aes(x=Customer_Age))
+
+
+```
+
+{.sidebar}
+=======================================================================
+
+### 1. Credit Cards
+
+Credit cards have become an integral part of our lives. Almost everybody has one and some people have multiple. This data set contains information on credit card holders and whether or not they decided to keep the credit card or get rid of it.
+
+### 2. Flexdashboard and Plotly
+
+This interactive uses `flexdashboard` and `plotly` to visualize the data. 
+
+Main Tab 1
+=======================================================================
+
+Column {data-width=500, .tabset}
+-----------------------------------------------------------------------
+
+
+### Column Tab 1
+
+```{r}
+kable(df)
+```
+
+
+### Column Tab 2
+
+```{r}
+datatable(df, options = list(
+  pageLength = 25
+))
+```
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+### Row 1
+
+```{r}
+ggplotly(p)
+```
+
+
+Main Tab 2
+=======================================================================
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+### Row 1
+
+```{r}
+ggplotly(p1)
+```
+
+Main Tab 3
+=======================================================================
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+```{r}
+ggplotly(p2)
+```
+
+Main Tab 4
+=======================================================================
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+
+```{r}
+library(plotly)
+p <- df %>% ggplot(aes(x=Months_on_book, y=Credit_Limit)) + geom_smooth()
+ggplotly(p)
+```
+
